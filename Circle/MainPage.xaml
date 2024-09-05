@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Circle.MainPage">
+
+	<ScrollView>
+		<VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+			<Label TextColor="LightGray" Text="Площадь круга"/>
+			<Entry x:Name="SInput" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+			<VerticalStackLayout x:Name="Results">
+				<HorizontalStackLayout>
+					<Label HorizontalOptions="Start" TextColor="LightGray" Text="Диаметр круга: "/>
+					<Label HorizontalOptions="FillAndExpand" x:Name="DOutput" />
+				</HorizontalStackLayout>
+
+				<HorizontalStackLayout>
+					<Label HorizontalOptions="Start" TextColor="LightGray" Text="Длина окружности: "/>
+					<Label HorizontalOptions="FillAndExpand" x:Name="LOutput" />
+				</HorizontalStackLayout>
+			</VerticalStackLayout>
+
+			<Label x:Name="NotExistsLabel" IsVisible="Hidden" Text="Круг не существует"/>
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>

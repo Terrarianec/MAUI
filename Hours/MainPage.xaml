@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Hours.MainPage">
+
+	<ScrollView>
+		<VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+			<Label TextColor="LightGray" Text="Количество секунд, прошедших с начала суток"/>
+			<Entry x:Name="NInput" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+			<VerticalStackLayout x:Name="Results">
+				<HorizontalStackLayout>
+					<Label HorizontalOptions="Start" TextColor="LightGray" Text="Количество полных часов, прошедших с начала суток: "/>
+					<Label HorizontalOptions="FillAndExpand" x:Name="HoursOutput" />
+				</HorizontalStackLayout>
+			</VerticalStackLayout>
+
+			<Label x:Name="NotExistsLabel" IsVisible="Hidden" Text="Во времени явно есть проблемы"/>
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>
