@@ -3,7 +3,8 @@ namespace AuthorizeHere
 {
 	public partial class MainPage : ContentPage
 	{
-		private readonly Dictionary<string, string> users = new Dictionary<string, string>() {
+		private readonly Dictionary<string, string> users = new Dictionary<string, string>(comparer: StringComparer.InvariantCultureIgnoreCase)
+		{
 			{"Админ", "123" },
 			{"Пользователь", "123" }
 		};
@@ -16,11 +17,17 @@ namespace AuthorizeHere
 		private async void OnPageLoaded(object sender, EventArgs e)
 		{
 			bool isCorrectUsername = false;
-			string answer = string.Empty;
+			string? answer = string.Empty;
 
 			do
 			{
-				answer = await DisplayPromptAsync("Пользователь", "Введите имя пользователя", placeholder: "Я", initialValue: answer);
+				answer = (await DisplayPromptAsync("Авторизация", "Введите имя пользователя", accept: "Авторизоваться", cancel: "Выход", placeholder: "Я", initialValue: answer))?.Trim();
+
+				if (answer is null)
+				{
+					Application.Current?.Quit();
+					return;
+				}
 
 				isCorrectUsername = users.ContainsKey(answer);
 
@@ -30,7 +37,7 @@ namespace AuthorizeHere
 
 			var password = users[answer];
 
-			while (await DisplayPromptAsync("Пользователь", "Введите пароль", placeholder: "1234567890", keyboard: Keyboard.Numeric) != password)
+			while (await DisplayPromptAsync("Авторизация", $"Введите пароль, {answer}", accept: "Войти", placeholder: "1234567890", keyboard: Keyboard.Numeric) != password)
 				await DisplayAlert("Проблема", "Неверный пароль", "Жаль");
 
 			MainArea.IsVisible = true;
