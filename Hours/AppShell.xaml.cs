@@ -1,10 +1,10 @@
 ﻿namespace Hours
 {
-	public partial class AppShell : Shell
-	{
-		public AppShell()
-		{
-			InitializeComponent();
-		}
-	}
+    public partial class AppShell : Shell
+    {
+        public AppShell()
+        {
+            InitializeComponent();
+        }
+    }
 }

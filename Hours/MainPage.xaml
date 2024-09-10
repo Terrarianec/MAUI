@@ -8,7 +8,7 @@
             Padding="30,0"
             Spacing="25">
 			<Label TextColor="LightGray" Text="Количество секунд, прошедших с начала суток"/>
-			<Entry x:Name="NInput" Keyboard="Numeric" TextChanged="TextChanged"/>
+			<Entry x:Name="NInput" Keyboard="Numeric" TextChanged="OnTextChanged"/>
 
 			<VerticalStackLayout x:Name="Results">
 				<HorizontalStackLayout>
@@ -17,8 +17,10 @@
 				</HorizontalStackLayout>
 			</VerticalStackLayout>
 
-			<Label x:Name="NotExistsLabel" IsVisible="Hidden" Text="Во времени явно есть проблемы"/>
-		</VerticalStackLayout>
+            <Label x:Name="NotExistsLabel" IsVisible="Hidden" Text="Во времени явно есть проблемы"/>
+            
+            <Button Text="Задание" Clicked="OnButtonClick"/>
+        </VerticalStackLayout>
 	</ScrollView>
 
 </ContentPage>

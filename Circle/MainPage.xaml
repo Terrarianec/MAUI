@@ -8,7 +8,7 @@
             Padding="30,0"
             Spacing="25">
 			<Label TextColor="LightGray" Text="Площадь круга"/>
-			<Entry x:Name="SInput" Keyboard="Numeric" TextChanged="TextChanged"/>
+			<Entry x:Name="SInput" Keyboard="Numeric" TextChanged="OnTextChanged"/>
 
 			<VerticalStackLayout x:Name="Results">
 				<HorizontalStackLayout>
@@ -23,7 +23,9 @@
 			</VerticalStackLayout>
 
 			<Label x:Name="NotExistsLabel" IsVisible="Hidden" Text="Круг не существует"/>
-		</VerticalStackLayout>
+
+            <Button Text="Задание" Clicked="OnButtonClick"/>
+        </VerticalStackLayout>
 	</ScrollView>
 
 </ContentPage>
