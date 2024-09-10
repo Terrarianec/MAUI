@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="AuthorizeHere.MainPage"
+			 Title="Заголовок"
+			 Loaded="OnPageLoaded">
+
+	<ScrollView>
+		<VerticalStackLayout
+			x:Name="MainArea"
+			IsVisible="False"
+			Padding="30,0"
+			Spacing="25">
+			<Button 
+				Text="Задание" 
+				CornerRadius="0" 
+				HorizontalOptions="FillAndExpand"
+				Clicked="OnButtonClicked"/>
+
+			<Label 
+				Text="Текст" 
+				HorizontalOptions="CenterAndExpand" 
+				Margin="100" 
+				TextColor="Black" 
+				Background="{StaticResource PrimaryDark}" 
+				Padding="40,20"/>
+
+			<StackLayout
+				Orientation="Horizontal">
+				<Button 
+					Text="Ква"
+					CornerRadius="0" 
+					HorizontalOptions="StartAndExpand"
+					Padding="40,20"
+					Clicked="OnSquakButtonClicked"/>
+				<Button 
+					Text="Ква"
+					CornerRadius="0" 
+					HorizontalOptions="EndAndExpand"
+					Padding="40,20"
+					Clicked="OnSquakButtonClicked"/>
+			</StackLayout>
+
+			<Label 
+				Text="Текст, но прям очень даже сильно побольше!" 
+				HorizontalOptions="CenterAndExpand" 
+				TextColor="Black" 
+				Background="{StaticResource PrimaryDark}" 
+				Padding="40,20"/>
+
+			<Button 
+				Text="Выход" 
+				Padding="40,20"
+				CornerRadius="0" 
+				HorizontalOptions="CenterAndExpand"
+				Clicked="OnQuitButtonClicked"/>
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>
