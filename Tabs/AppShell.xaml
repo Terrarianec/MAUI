@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Tabs.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Tabs"
+    Shell.FlyoutBehavior="Disabled"
+    Title="Tabs">
+	<TabBar CurrentItem="{x:Reference About}">
+		<Tab Title="Автоматический расчёт">
+			<ShellContent ContentTemplate="{DataTemplate local:LeftPage}"/>
+		</Tab>
+		<Tab Title="Ручной расчёт">
+			<ShellContent ContentTemplate="{DataTemplate local:RightPage}"/>
+		</Tab>
+		<Tab x:Name="About" Title="О программе">
+			<ShellContent ContentTemplate="{DataTemplate local:AboutPage}"/>
+		</Tab>
+	</TabBar>
+</Shell>
