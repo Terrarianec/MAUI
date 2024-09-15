@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Clock.StopwatchPage">
+	<StackLayout Orientation="Vertical">
+		<Label x:Name="timeLabel"
+			VerticalOptions="Center" 
+			HorizontalOptions="Center" 
+			FontSize="48"
+			Text="00:00.0"/>
+
+		<ScrollView VerticalOptions="StartAndExpand">
+			<StackLayout x:Name="timestamps"/>
+		</ScrollView>
+
+		<StackLayout Orientation="Horizontal" 
+			VerticalOptions="End" 
+			HorizontalOptions="CenterAndExpand"
+			Spacing="20"
+			Padding="20">
+			<Button x:Name="flagButton"
+					Text="🚩"
+					FontSize="36"
+					IsEnabled="False"
+					Clicked="OnFlagButtonClick"/>
+			<Button Text="🔄"
+					FontSize="36"
+					Clicked="OnStartButtonClick"/>
+		</StackLayout>
+	</StackLayout>
+</ContentPage>
