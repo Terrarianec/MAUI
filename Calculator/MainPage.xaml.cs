@@ -2,18 +2,18 @@
 {
 	public partial class MainPage : ContentPage
 	{
-		private static readonly List<Operator> _operators = [
-			new Operator('÷', (a, b) => a / b),
-			new Operator('×', (a, b) => a * b),
-			new Operator('-', (a, b) => a - b),
-			new Operator('+', (a, b) => a + b)
+		private static readonly List<Operator<double>> _operators = [
+			new ('÷', (a, b) => a / b),
+			new ('×', (a, b) => a * b),
+			new ('-', (a, b) => a - b),
+			new ('+', (a, b) => a + b)
 		];
 
-		private int? KeepingValue
+		private double? KeepingValue
 		{
 			get
 			{
-				if (string.IsNullOrEmpty(keepingValueField.Text) || !int.TryParse(keepingValueField.Text, out var value))
+				if (string.IsNullOrEmpty(keepingValueField.Text) || !double.TryParse(keepingValueField.Text, out var value))
 					return null;
 
 				return value;
@@ -21,11 +21,11 @@
 			set => keepingValueField.Text = value?.ToString();
 		}
 
-		private Operator? Operator
+		private Operator<double>? Operator
 		{
 			get
 			{
-				if (operation.BindingContext is not Operator op)
+				if (operation.BindingContext is not Operator<double> op)
 					return null;
 
 				return op;
@@ -36,11 +36,11 @@
 			}
 		}
 
-		private int? CurrentValue
+		private double? CurrentValue
 		{
 			get
 			{
-				if (string.IsNullOrEmpty(currentValueField.Text) || !int.TryParse(currentValueField.Text, out var value))
+				if (string.IsNullOrEmpty(currentValueField.Text) || !double.TryParse(currentValueField.Text, out var value))
 					return null;
 
 				return value;
@@ -60,7 +60,7 @@
 
 		private void OnDigitButtonClicked(object sender, EventArgs e)
 		{
-			if (sender is not Button button || !int.TryParse(button.Text[..1], out var digit))
+			if (sender is not Button button || !double.TryParse(button.Text[..1], out var digit))
 				return;
 
 			CurrentValue = (CurrentValue ?? 0) * 10 + digit;

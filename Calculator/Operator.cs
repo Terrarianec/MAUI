@@ -1,7 +1,7 @@
 ﻿namespace Calculator;
 
-internal class Operator(char @char, Func<int, int, int> action)
+internal class Operator<T>(char @char, Func<T, T, T> action) where T : struct
 {
 	public char Char { get; } = @char;
-	public int Execute(int a, int b) => action.Invoke(a, b);
+	public T Execute(T a, T b) => action.Invoke(a, b);
 }
