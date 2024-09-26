@@ -48,7 +48,7 @@ public partial class MainPage : ContentPage
 
 		foreach (var method in methods)
 		{
-			var button = new Button { Text = $"{method.Name.ToLower()}({string.Join(", ", method.GetParameters().Select(p => p.Name))})" };
+			var button = new Button { Text = $"{method.Name.ToLower()}({string.Join(", ", method.GetParameters().Select(p => p.Name))})", BindingContext = method };
 			Grid.SetRow(button, i / columns);
 			Grid.SetColumn(button, columns - 1 - i % columns);
 			button.Clicked += OnTwoArgumentsFunctionExpressionButtonClicked; ;
@@ -78,12 +78,12 @@ public partial class MainPage : ContentPage
 
 	private void OnTwoArgumentsFunctionExpressionButtonClicked(object? sender, EventArgs e)
 	{
-		if (sender is not Button button)
+		if (sender is not Button button || button.BindingContext is not MethodInfo method)
 			return;
 
 		if (currentValueField.SelectionLength == 0)
 		{
-			Insert(button.Text);
+			Insert($"{method.Name.ToLower()}({string.Join(", ", method.GetParameters().Select(p => p.DefaultValue is double value ? value : double.NegativeZero))})");
 			return;
 		}
 

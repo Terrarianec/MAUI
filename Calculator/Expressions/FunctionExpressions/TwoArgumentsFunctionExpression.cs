@@ -40,6 +40,6 @@ public sealed class TwoArgumentsFunctionExpression : FunctionExpression
 
 	public override double Solve() => Functions[FunctionName](Param1.Solve(), Param2.Solve());
 
-	private static double Log(double a, double b) => Math.Log(a, b);
-	private static double Root(double a, double b) => Math.Pow(a, 1 / b);
+	private static double Log(double a, double b = double.E) => Math.Log(a, b);
+	private static double Root(double a, double b = 2) => Math.Pow(a, 1 / b);
 }
