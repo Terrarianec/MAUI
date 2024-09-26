@@ -5,14 +5,19 @@
 			 Loaded="OnPageLoaded">
 	<ContentPage.Resources>
 		<Style TargetType="Button">
-			<Setter Property="CornerRadius" Value="{Binding Source={RelativeSource Self}, Path=Width}"/>
+			<Setter Property="CornerRadius" Value="{Binding Source={RelativeSource Self}, Path=Height}"/>
 			<Setter Property="TextColor" Value="White"/>
 		</Style>
 	</ContentPage.Resources>
-	<ScrollView>
-		<Grid Padding="10">
+	<Grid Padding="10">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="3*"/>
+			<RowDefinition Height="5*"/>
+		</Grid.RowDefinitions>
+		<Grid Grid.RowSpan="2">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="3*"/>
+				<RowDefinition Height="1*"/>
 				<RowDefinition Height="1*"/>
 				<RowDefinition Height="1*"/>
 				<RowDefinition Height="1*"/>
@@ -31,33 +36,57 @@
 					<RowDefinition Height="2*"/>
 				</Grid.RowDefinitions>
 
-				<StackLayout Grid.Row="0" Orientation="Horizontal">
-					<Label x:Name="keepingValueField" HorizontalOptions="StartAndExpand" FontSize="Large"/>
-					<Label x:Name="operation" HorizontalOptions="EndAndExpand" FontSize="Large" Text="{Binding Path=Char}"/>
-				</StackLayout>
+				<ScrollView Grid.Row="0" Orientation="Horizontal">
+					<Label x:Name="previousValueField" HorizontalOptions="StartAndExpand" FontSize="8" Text="{Binding Source={RelativeSource Self}, Path=BindingContext}"/>
+				</ScrollView>
 
-				<Entry x:Name="currentValueField" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" FontSize="Large" IsReadOnly="True"/>
+				<Entry x:Name="currentValueField" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" FontSize="Large" Keyboard="Default"/>
 			</Grid>
 
-			<Button Grid.Row="1" Grid.Column="0" Text="C" Clicked="OnClearButtonClicked"/>
+			<Button Grid.Row="1" Grid.Column="0" Text="C" Clicked="OnClearButtonClicked" Pressed="OnClearButtonPressed" Released="OnClearButtonReleased"/>
 			<Button Grid.Row="1" Grid.Column="1" Text="0" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="1" Grid.Column="2" Text="=" BackgroundColor="{StaticResource PrimaryDark}" Clicked="OnSolveButtonClicked"/>
-			<Button Grid.Row="1" Grid.Column="3" Text="÷" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="1" Grid.Column="3" Text="+" Clicked="OnOperatorButtonClicked"/>
 
 			<Button Grid.Row="2" Grid.Column="0" Text="1" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="2" Grid.Column="1" Text="2" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="2" Grid.Column="2" Text="3" Clicked="OnDigitButtonClicked"/>
-			<Button Grid.Row="2" Grid.Column="3" Text="×" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="2" Grid.Column="3" Text="-" Clicked="OnOperatorButtonClicked"/>
 
 			<Button Grid.Row="3" Grid.Column="0" Text="4" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="3" Grid.Column="1" Text="5" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="3" Grid.Column="2" Text="6" Clicked="OnDigitButtonClicked"/>
-			<Button Grid.Row="3" Grid.Column="3" Text="-" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="3" Grid.Column="3" Text="×" Clicked="OnOperatorButtonClicked"/>
 
 			<Button Grid.Row="4" Grid.Column="0" Text="7" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="4" Grid.Column="1" Text="8" Clicked="OnDigitButtonClicked"/>
 			<Button Grid.Row="4" Grid.Column="2" Text="9" Clicked="OnDigitButtonClicked"/>
-			<Button Grid.Row="4" Grid.Column="3" Text="+" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="4" Grid.Column="3" Text="÷" Clicked="OnOperatorButtonClicked"/>
+
+			<Button Grid.Row="5" Grid.Column="0" Text="f(x)" Clicked="OnFunctionsButtonClicked"/>
+			<Button Grid.Row="5" Grid.Column="1" Text="." Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="5" Grid.Column="2" Text="|x|" Clicked="OnAbsButtonClicked"/>
+			<Button Grid.Row="5" Grid.Column="3" Text="^" Clicked="OnOperatorButtonClicked"/>
 		</Grid>
-	</ScrollView>
+		<Grid x:Name="functionButtons" Grid.Row="1" IsVisible="False" VerticalOptions="Fill" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" BindingContext="{x:Reference pageGrid}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			<Button Grid.Row="0" Grid.Column="0" Text="e" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="0" Grid.Column="1" Text="π" Clicked="OnOperatorButtonClicked"/>
+			<Button Grid.Row="7" Grid.Column="0" Text="f(x)" Clicked="OnFunctionsButtonClicked"/>
+			<Button Grid.Row="7" Grid.Column="1" Text="(" Clicked="OnOpenBracketButtonClicked"/>
+			<Button Grid.Row="7" Grid.Column="2" Text=")" Clicked="OnCloseBracketButtonClicked"/>
+		</Grid>
+	</Grid>
 </ContentPage>

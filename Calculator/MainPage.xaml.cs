@@ -1,117 +1,214 @@
-﻿namespace Calculator
+﻿using Calculator.Expressions;
+using Calculator.Expressions.FunctionExpressions;
+using System.Reflection;
+
+namespace Calculator;
+
+public partial class MainPage : ContentPage
 {
-	public partial class MainPage : ContentPage
+	private readonly IDispatcherTimer _holdTimer = Application.Current!.Dispatcher.CreateTimer();
+
+	public MainPage()
 	{
-		private static readonly List<Operator<double>> _operators = [
-			new ('÷', (a, b) => a / b),
-			new ('×', (a, b) => a * b),
-			new ('-', (a, b) => a - b),
-			new ('+', (a, b) => a + b)
-		];
+		InitializeComponent();
 
-		private double? KeepingValue
+		_holdTimer.Interval = TimeSpan.FromSeconds(0.45);
+		_holdTimer.IsRepeating = false;
+		_holdTimer.Tick += OnHoldTimerLeft;
+	}
+
+	private void OnHoldTimerLeft(object? sender, EventArgs e)
+	{
+		previousValueField.BindingContext = null;
+		currentValueField.Text = string.Empty;
+	}
+
+	private void OnPageLoaded(object sender, EventArgs e)
+	{
+		var columns = functionButtons.ColumnDefinitions.Count;
+		var rows = functionButtons.RowDefinitions.Count;
+		int i = rows * columns - 4;
+
+		var methods = typeof(OneArgumentFunctionExpression).GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+			.Where(m => !m.IsSpecialName);
+
+		foreach (var method in methods)
 		{
-			get
-			{
-				if (string.IsNullOrEmpty(keepingValueField.Text) || !double.TryParse(keepingValueField.Text, out var value))
-					return null;
+			var button = new Button { Text = $"{method.Name.ToLower()}({string.Join(", ", method.GetParameters().Select(p => p.Name))})" };
+			Grid.SetRow(button, i / columns);
+			Grid.SetColumn(button, columns - 1 - i % columns);
+			button.Clicked += OnOneArgumentFunctionButtonClicked;
 
-				return value;
-			}
-			set => keepingValueField.Text = value?.ToString();
+			i--;
+			functionButtons.Children.Add(button);
 		}
 
-		private Operator<double>? Operator
+		methods = typeof(TwoArgumentsFunctionExpression).GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+					.Where(m => !m.IsSpecialName);
+
+		foreach (var method in methods)
 		{
-			get
-			{
-				if (operation.BindingContext is not Operator<double> op)
-					return null;
+			var button = new Button { Text = $"{method.Name.ToLower()}({string.Join(", ", method.GetParameters().Select(p => p.Name))})" };
+			Grid.SetRow(button, i / columns);
+			Grid.SetColumn(button, columns - 1 - i % columns);
+			button.Clicked += OnTwoArgumentsFunctionExpressionButtonClicked; ;
 
-				return op;
-			}
-			set
-			{
-				operation.BindingContext = value;
-			}
-		}
-
-		private double? CurrentValue
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(currentValueField.Text) || !double.TryParse(currentValueField.Text, out var value))
-					return null;
-
-				return value;
-			}
-			set => currentValueField.Text = value?.ToString();
-		}
-
-		public MainPage()
-		{
-			InitializeComponent();
-		}
-
-		private void OnPageLoaded(object sender, EventArgs e)
-		{
-			DisplayAlert("Предупреждение", "Этот калькулятор работает только с целыми числами в диапазоне [-2^31; 2^31 - 1]. За попытки работы с другими значениями автор не ручается", "Жаль");
-		}
-
-		private void OnDigitButtonClicked(object sender, EventArgs e)
-		{
-			if (sender is not Button button || !double.TryParse(button.Text[..1], out var digit))
-				return;
-
-			CurrentValue = (CurrentValue ?? 0) * 10 + digit;
-		}
-
-		private void OnOperatorButtonClicked(object sender, EventArgs e)
-		{
-			if (sender is not Button button)
-				return;
-
-			try
-			{
-				if (Operator != null)
-				{
-					CurrentValue = Operator.Execute(KeepingValue ?? 0, CurrentValue ?? 0);
-					KeepingValue = null;
-				}
-
-				Operator = _operators.FirstOrDefault(op => op.Char.ToString() == button.Text);
-
-				KeepingValue = CurrentValue;
-				CurrentValue = null;
-			}
-			catch (DivideByZeroException) { DisplayAlert("Ошибка", "Деление на ноль", "Жаль"); }
-			catch { DisplayAlert("Ошибка", "Неожиданно и неприятно", "Жаль"); }
-		}
-
-		private void OnSolveButtonClicked(object sender, EventArgs e)
-		{
-			if (Operator == null)
-			{
-				CurrentValue ??= KeepingValue;
-				return;
-			}
-
-			try
-			{
-				CurrentValue = Operator.Execute(KeepingValue ?? 0, CurrentValue ?? 0);
-				Operator = null;
-				KeepingValue = null;
-			}
-			catch (DivideByZeroException) { DisplayAlert("Ошибка", "Деление на ноль", "Жаль"); }
-			catch { DisplayAlert("Ошибка", "Неожиданно и неприятно", "Жаль"); }
-		}
-
-		private void OnClearButtonClicked(object sender, EventArgs e)
-		{
-			KeepingValue = null;
-			Operator = null;
-			CurrentValue = null;
+			i--;
+			functionButtons.Children.Add(button);
 		}
 	}
 
+	private void OnOneArgumentFunctionButtonClicked(object? sender, EventArgs e)
+	{
+		if (sender is not Button button)
+			return;
+
+		if (currentValueField.SelectionLength == 0)
+		{
+			Insert(button.Text[..^2]);
+			return;
+		}
+
+		int cursorPosition = currentValueField.CursorPosition;
+		var selected = currentValueField.Text.Substring(cursorPosition, currentValueField.SelectionLength);
+		var functionExpression = $"{button.Text.Replace("v", selected)}";
+		currentValueField.Text = $"{currentValueField.Text[..cursorPosition]}{functionExpression}{currentValueField.Text[(cursorPosition + currentValueField.SelectionLength)..]}";
+		currentValueField.CursorPosition = cursorPosition + functionExpression.Length;
+	}
+
+	private void OnTwoArgumentsFunctionExpressionButtonClicked(object? sender, EventArgs e)
+	{
+		if (sender is not Button button)
+			return;
+
+		if (currentValueField.SelectionLength == 0)
+		{
+			Insert(button.Text);
+			return;
+		}
+
+		int cursorPosition = currentValueField.CursorPosition;
+		var selected = currentValueField.Text.Substring(cursorPosition, currentValueField.SelectionLength);
+		var functionExpression = $"{button.Text.Replace("a", selected).Replace("b", string.Empty)}";
+		currentValueField.Text = $"{currentValueField.Text[..cursorPosition]}{functionExpression}{currentValueField.Text[(cursorPosition + currentValueField.SelectionLength)..]}";
+		currentValueField.CursorPosition = cursorPosition + functionExpression.Length - 1;
+	}
+
+	private void OnDigitButtonClicked(object sender, EventArgs e)
+	{
+		if (sender is not Button button || !double.TryParse(button.Text[..1], out var digit))
+			return;
+
+		Insert(digit.ToString());
+	}
+
+	private void OnOperatorButtonClicked(object sender, EventArgs e)
+	{
+		if (sender is not Button button)
+			return;
+
+		Insert(button.Text);
+	}
+
+	private void OnSolveButtonClicked(object sender, EventArgs e)
+	{
+		if (string.IsNullOrEmpty(currentValueField.Text))
+			return;
+
+		var openBrackets = currentValueField.Text.Count(c => c == '(');
+		var closeBrackets = currentValueField.Text.Count(c => c == ')');
+
+		if (openBrackets > closeBrackets)
+			currentValueField.Text += new string(')', openBrackets - closeBrackets);
+
+		try
+		{
+			var expression = Expression.Parse(currentValueField.Text);
+			currentValueField.Text = expression.Solve().ToString();
+			previousValueField.BindingContext = expression;
+		}
+		catch (ArgumentOutOfRangeException ex) { DisplayAlert("Ошибка", $"{ex.Message}", "Жаль"); }
+		catch (ArgumentException) { DisplayAlert("Ошибка", "Некорректное выражение", "Жаль"); }
+		catch (OverflowException) { DisplayAlert("Ошибка", "Произошло переполнение", "Жаль"); }
+		catch (InvalidOperationException ex) { DisplayAlert("Ошибка", $"'{ex.Message}' не является корректной функцией", "Жаль"); }
+		catch (DivideByZeroException ex) { DisplayAlert("Ошибка", ex.Message, "Жаль"); }
+		catch (Exception)
+		{
+			DisplayAlert("Ошибка", "Непредвиденная ошибка", "Жаль");
+		}
+	}
+
+	private void OnClearButtonClicked(object sender, EventArgs e)
+	{
+		if (string.IsNullOrEmpty(currentValueField.Text)
+			|| currentValueField.CursorPosition == 0)
+			return;
+
+		if (previousValueField.BindingContext is Expression previousExpression
+			&& previousExpression.Solve().ToString() == currentValueField.Text)
+		{
+			previousValueField.BindingContext = null;
+			currentValueField.Text = string.Empty;
+
+			return;
+		}
+
+		currentValueField.Text = currentValueField.Text.Remove(currentValueField.CursorPosition - 1, 1);
+	}
+
+	private void OnAbsButtonClicked(object sender, EventArgs e)
+	{
+		if (string.IsNullOrEmpty(currentValueField.Text))
+			return;
+
+		if (currentValueField.SelectionLength != 0)
+		{
+			int cursorPosition = currentValueField.CursorPosition;
+			var selected = currentValueField.Text.Substring(cursorPosition, currentValueField.SelectionLength);
+			currentValueField.Text = $"{currentValueField.Text[..cursorPosition]}|{selected}|{currentValueField.Text[(cursorPosition + currentValueField.SelectionLength)..]}";
+		}
+		else
+			currentValueField.Text = $"|{currentValueField.Text}|";
+	}
+
+	private void OnClearButtonPressed(object sender, EventArgs e)
+	{
+		_holdTimer.Start();
+	}
+
+	private void OnClearButtonReleased(object sender, EventArgs e)
+	{
+		_holdTimer.Stop();
+	}
+
+	private void OnFunctionsButtonClicked(object sender, EventArgs e)
+	{
+		functionButtons.IsVisible = !functionButtons.IsVisible;
+	}
+
+	private void OnOpenBracketButtonClicked(object sender, EventArgs e)
+	{
+		if (currentValueField.SelectionLength > 0)
+		{
+			int cursorPosition = currentValueField.CursorPosition;
+			var selected = currentValueField.Text.Substring(cursorPosition, currentValueField.SelectionLength);
+			currentValueField.Text = $"{currentValueField.Text[..cursorPosition]}({selected}){currentValueField.Text[(cursorPosition + currentValueField.SelectionLength)..]}";
+		}
+		else
+			Insert("(");
+	}
+
+	private void OnCloseBracketButtonClicked(object sender, EventArgs e)
+	{
+		Insert(")");
+	}
+
+	private void Insert(string value)
+	{
+		var cursorPosition = currentValueField.CursorPosition;
+
+		currentValueField.Text = (currentValueField.Text ?? string.Empty).Insert(currentValueField.CursorPosition, value);
+
+		currentValueField.CursorPosition = cursorPosition + value.Length;
+	}
 }
