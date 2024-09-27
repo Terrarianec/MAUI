@@ -1,0 +1,31 @@
+name: Build MAUI (Android)
+
+on:
+  push:
+    branches: [ "Practice-*" ]
+  pull_request:
+    branches: [ "Practice-*" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Install .NET MAUI
+      run: dotnet workload install maui
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore -c Release -f net8.0-android
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.2.1-node20
+      with: 
+        path: |
+          ./**/*.aab
+          ./**/*.apk
