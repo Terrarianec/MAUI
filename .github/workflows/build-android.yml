@@ -2,9 +2,11 @@ name: Build MAUI (Android)
 
 on:
   push:
-    branches: [ "Practice-*" ]
+    branches: 
+    - "Practice-*"
   pull_request:
-    branches: [ "Practice-*" ]
+    branches:  
+    - "Practice-*"
 
 jobs:
   build:
