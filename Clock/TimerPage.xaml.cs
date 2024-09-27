@@ -17,7 +17,7 @@ public partial class TimerPage : ContentPage
 
 	private void OnTick(object? sender, EventArgs e)
 	{
-		if (_time == TimeSpan.Zero)
+		if (_time <= TimeSpan.Zero)
 		{
 			EndTime();
 			DisplayAlert("Таймер", "Время истекло", "Жаль");
