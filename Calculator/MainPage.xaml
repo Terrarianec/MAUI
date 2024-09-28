@@ -68,7 +68,7 @@
 			<Button Grid.Row="5" Grid.Column="2" Text="|x|" Clicked="OnAbsButtonClicked"/>
 			<Button Grid.Row="5" Grid.Column="3" Text="^" Clicked="OnOperatorButtonClicked"/>
 		</Grid>
-		<Grid x:Name="functionButtons" Grid.Row="1" IsVisible="False" VerticalOptions="Fill" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" BindingContext="{x:Reference pageGrid}">
+		<Grid x:Name="functionButtons" Grid.Row="1" IsVisible="False" VerticalOptions="Fill" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="1*"/>
 				<RowDefinition Height="1*"/>
