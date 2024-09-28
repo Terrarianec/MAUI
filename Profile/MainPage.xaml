@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Profile.MainPage"
+			 Loaded="OnPageLoaded">
+	<Grid Padding="10">
+		<TableView>
+			<TableRoot>
+				<TableSection Title="Персональные данные">
+					<EntryCell Label="Фамилия" Placeholder="Введите фамилию"/>
+					<EntryCell Label="Имя" Placeholder="Введите имя"/>
+					<EntryCell Label="Отчество" Placeholder="Введите отчество"/>
+					<ViewCell>
+						<StackLayout Orientation="Horizontal">
+							<Label Text="Пол" VerticalOptions="CenterAndExpand"/>
+							<Picker Title="Выберите пол">
+								<Picker.Items>
+									<x:String>Мужской</x:String>
+									<x:String>Женский</x:String>
+								</Picker.Items>
+							</Picker>
+						</StackLayout>
+					</ViewCell>
+					<ViewCell>
+						<StackLayout Orientation="Horizontal" Spacing="20">
+							<Label Text="Возраст" VerticalOptions="CenterAndExpand"/>
+							<Grid>
+								<Label x:Name="ageLabel" Text="Выберите дату рождения" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill"/>
+								<DatePicker x:Name="dateOfBirthPicker" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill" Opacity="0" DateSelected="OnDateOfBirthSelected"/>
+							</Grid>
+						</StackLayout>
+					</ViewCell>
+					<ImageCell ImageSource="{Binding Source={x:Reference imagePathPicker}, Path=SelectedItem}" Text="Фото"/>
+					<ViewCell>
+						<Picker x:Name="imagePathPicker" Title="Выберите фотографию" VerticalOptions="FillAndExpand"/>
+					</ViewCell>
+				</TableSection>
+				<TableSection Title="Другое">
+					<SwitchCell Text="Нужно общежитие"/>
+					<SwitchCell Text="Староста"/>
+				</TableSection>
+				<TableSection x:Name="marksSection" Title="Оценки">
+				</TableSection>
+				<TableSection>
+					<ViewCell>
+						<Button Text="Добавить оценку" Clicked="OnAddMarkButtonClick"/>
+					</ViewCell>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+	</Grid>
+
+</ContentPage>
