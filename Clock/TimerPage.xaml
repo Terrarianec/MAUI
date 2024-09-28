@@ -73,7 +73,8 @@
 				Grid.ColumnSpan="3" 
 				HorizontalOptions="CenterAndExpand" 
 				FontSize="56"
-				IsVisible="False"/>
+				IsVisible="False"
+				Text="{Binding Source={x:RelativeSource Self}, Path=BindingContext, StringFormat='{0:mm\\:ss\\.f}'}"/>
 		</Grid>
 
 		<StackLayout Orientation="Horizontal" 

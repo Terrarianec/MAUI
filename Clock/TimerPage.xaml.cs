@@ -27,7 +27,7 @@ public partial class TimerPage : ContentPage
 		if (!_paused)
 			_time -= _timer.Interval;
 
-		timerLabel.Text = _time.ToString(@"mm\:ss\.f");
+		timerLabel.BindingContext = _time;
 	}
 
 	private void OnIncreaseMinutesButtonClicked(object sender, EventArgs e)
@@ -62,6 +62,7 @@ public partial class TimerPage : ContentPage
 		if (_paused)
 		{
 			_paused = false;
+			timerLabel.IsEnabled = !_paused;
 			return;
 		}
 
