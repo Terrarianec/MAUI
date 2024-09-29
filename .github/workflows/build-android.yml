@@ -1,0 +1,53 @@
+name: Build & Release MAUI App (Android)
+
+on:
+  push:
+    branches-ignore: 
+    - 'main'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Install .NET MAUI
+      run: dotnet workload install maui-android
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore -c Release -f net8.0-android
+    - name: Copy build files
+      run: |
+        copy "./*/bin/Release/net8.0-android" -r "./release" -Force
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        overwrite: true
+        name: ${{ github.ref_name }}-build
+        path: release
+        retention-days: 3
+
+  release:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ github.ref_name }}-build
+        path: ./release
+    - name: Show release data
+      run: dir -r release/*
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        tag: ${{ github.ref_name }}
+        name: ${{ github.ref_name }}
+        makeLatest: true
+        artifacts: ./**/*.apk
