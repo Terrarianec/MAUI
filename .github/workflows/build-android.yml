@@ -3,10 +3,12 @@ name: Build MAUI (Android)
 on:
   push:
     branches: 
-    - "Practice-*"
+    - '!main'
+    - '!master'
   pull_request:
     branches:  
-    - "Practice-*"
+    - '!main'
+    - '!master'
 
 jobs:
   build:
@@ -31,3 +33,4 @@ jobs:
         path: |
           ./**/*.aab
           ./**/*.apk
+        retention-days: 3
