@@ -23,7 +23,7 @@ jobs:
       run: dotnet build --no-restore -c Release -f net8.0-android
     - name: Copy build files
       run: |
-        copy "./*/bin/Release/net8.0-android" -r "./release" -Force
+        dir -r "./*/bin/Release/net8.0-android/*" | copy -r -Destination "./release/" -Force
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
