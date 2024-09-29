@@ -13,13 +13,13 @@ public partial class MainPage : ContentPage
 		dateOfBirthPicker.MinimumDate = DateTime.MinValue;
 
 		var images = new List<string> {
-			"image_00009_neuro.png",
-			"image_00011_neuro.png",
-			"image_00014_neuro.png",
-			"image_00018_neuro.png",
-			"image_00025_neuro.png",
-			"image_00026_neuro.png",
-			"image_00047_neuro.png"
+			"image_01_neuro.png",
+			"image_02_neuro.png",
+			"image_03_neuro.png",
+			"image_04_neuro.png",
+			"image_05_neuro.png",
+			"image_06_neuro.png",
+			"image_07_neuro.png"
 		}.Select(path => ImageSource.FromFile(path)).ToList();
 		imagePathPicker.ItemsSource = images;
 	}
