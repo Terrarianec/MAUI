@@ -11,20 +11,18 @@ public abstract class Expression
 	public abstract string Beautify();
 	public override string ToString() => Beautify();
 
-	private const char PLACEHOLDER_SYMBOL = 'p';
-	private static readonly string decimalRegexStr = @"(((?:-)?\d+(?:\.\d+)?(?:E(?:-)?\d+)?)|((?:-)?∞)|(NaN))";
-	private static readonly string expressionPlaceholderRegexStr = @$"({PLACEHOLDER_SYMBOL}\d+)";
-	private static readonly string valueRegexStr = $"({decimalRegexStr}|e|π|{expressionPlaceholderRegexStr})";
-	private static readonly string arithmeticExpressionRegexTemplate = @$"(?<v1>{valueRegexStr})\s*(?<operator>(?:<template>))\s*(?<v2>{valueRegexStr})";
-	private static readonly Regex oneArgumentFunctionRegex = new(@$"(?<fn>(?:[a-z]+))\(\s*(?<v>{valueRegexStr})\s*\)", RegexOptions.Compiled);
-	private static readonly Regex twoArgumentFunctionRegex = new(@$"(?<fn>(?:[a-z]+))\(\s*(?<v1>{valueRegexStr})\s*,\s*(?<v2>{valueRegexStr})\s*\)", RegexOptions.Compiled);
-	private static readonly Regex absRegex = new(@$"\|\s*(?<v>{valueRegexStr})\s*\|", RegexOptions.Compiled);
-	private static readonly Regex powerRegex = new(arithmeticExpressionRegexTemplate.Replace("<template>", "\\^"), RegexOptions.Compiled);
-	private static readonly Regex multiplyOrDivisionRegex = new(arithmeticExpressionRegexTemplate.Replace("<template>", @"\×|\÷"), RegexOptions.Compiled);
-	private static readonly Regex additionOrSubtractionRegex = new(arithmeticExpressionRegexTemplate.Replace("<template>", @"\+|\-"), RegexOptions.Compiled);
-	private static readonly Regex expressionInBracketsRegex = new(@"(?<![a-z]+)\((?<expression>[^)(]+)\)", RegexOptions.Compiled);
-	private static readonly Regex extraBracketsRegex = new(@"^\((?<expression>[^)()]+)\)$", RegexOptions.Compiled);
-	private static readonly Regex placeholderRegex = new($"^{expressionPlaceholderRegexStr}$", RegexOptions.Compiled);
+	protected const char PLACEHOLDER_SYMBOL = 'p';
+	private static readonly string decimalRegexPattern = @"(((?:-)?\d+(?:\.\d+)?(?:E(?:-)?\d+)?)|((?:-)?∞)|(NaN))";
+	private static readonly string expressionPlaceholderRegexPattern = @$"({PLACEHOLDER_SYMBOL}\d+)";
+	protected static readonly string ValuePattern = $"({decimalRegexPattern}|e|π|{expressionPlaceholderRegexPattern})";
+	private static readonly Regex oneArgumentFunctionRegex = new(@$"(?<fn>(?:[a-z]+))\(\s*(?<v>{ValuePattern})\s*\)", RegexOptions.Compiled);
+	private static readonly Regex twoArgumentFunctionRegex = new(@$"(?<fn>(?:[a-z]+))\(\s*(?<v1>{ValuePattern})\s*,\s*(?<v2>{ValuePattern})\s*\)", RegexOptions.Compiled);
+	private static readonly Regex absRegex = new(@$"\|\s*(?<v>{ValuePattern})\s*\|", RegexOptions.Compiled);
+	private static readonly Regex expressionInBracketsRegex = new(@"(?<![a-z]+)\((?<expression>.+)\)", RegexOptions.Compiled);
+	private static readonly Regex extraBracketsRegex = new(@"^\((?<expression>.+)\)$", RegexOptions.Compiled);
+	private static readonly Regex placeholderRegex = new($"^{expressionPlaceholderRegexPattern}$", RegexOptions.Compiled);
+	private static readonly Regex negativePlaceholderRegex = new(@$"^-(?<placeholder>{expressionPlaceholderRegexPattern})$", RegexOptions.Compiled);
+
 
 	public static Expression Parse(string expression) => Parse(expression, []);
 	private static Expression Parse(string expression, List<Expression> placeholders)
@@ -52,7 +50,7 @@ public abstract class Expression
 					{
 						var v = r.Groups["v"].Value;
 
-						placeholders.Add(new AbsoluteValueExpression(getExpression(v)));
+						placeholders.Add(new AbsoluteValueExpression(GetExpression(v, placeholders)));
 
 						return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
 					});
@@ -67,7 +65,7 @@ public abstract class Expression
 					var fn = r.Groups["fn"].Value;
 					var v = r.Groups["v"].Value;
 
-					placeholders.Add(new OneArgumentFunctionExpression(fn, getExpression(v)));
+					placeholders.Add(new OneArgumentFunctionExpression(fn, GetExpression(v, placeholders)));
 
 					return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
 				});
@@ -83,7 +81,7 @@ public abstract class Expression
 					var v1 = r.Groups["v1"].Value;
 					var v2 = r.Groups["v2"].Value;
 
-					placeholders.Add(new TwoArgumentsFunctionExpression(fn, getExpression(v1), getExpression(v2)));
+					placeholders.Add(new TwoArgumentsFunctionExpression(fn, GetExpression(v1, placeholders), GetExpression(v2, placeholders)));
 
 					return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
 				});
@@ -153,29 +151,13 @@ public abstract class Expression
 				continue;
 			}
 
-			if (additionOrSubtractionRegex.IsMatch(expression))
-			{
-				expression = additionOrSubtractionRegex.Replace(expression, r =>
-				{
-					var @operator = r.Groups["operator"].Value;
-					var v1 = r.Groups["v1"].Value;
-					var v2 = r.Groups["v2"].Value;
-
-					placeholders.Add(
-						@operator == "+"
-							? new AdditionExpression(getExpression(v1), getExpression(v2))
-							: new SubtractionExpression(getExpression(v1), getExpression(v2))
-					);
-
-					return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
-				});
-
+			if (ArithmeticExpression.Replace(ref expression, placeholders))
 				continue;
 			}
 
-			if (expression == "e" || expression == "π" || new Regex($"^{decimalRegexStr}$", RegexOptions.Compiled).IsMatch(expression))
+			if (expression == "e" || expression == "π" || new Regex($"^{decimalRegexPattern}$", RegexOptions.Compiled).IsMatch(expression))
 			{
-				expression = new Regex(valueRegexStr, RegexOptions.Compiled).Replace(expression, r =>
+				expression = new Regex(ValuePattern, RegexOptions.Compiled).Replace(expression, r =>
 				{
 					var value = r.Value;
 
@@ -207,6 +189,21 @@ public abstract class Expression
 							}
 							break;
 					}
+
+					return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
+				});
+
+				continue;
+			}
+
+			if (negativePlaceholderRegex.IsMatch(expression))
+			{
+				expression = negativePlaceholderRegex.Replace(expression, r =>
+				{
+					var placeholder = r.Groups["placeholder"].Value;
+
+					placeholders.Add(new NegativeExpression(GetExpression(placeholder, placeholders)));
+
 					return $"{PLACEHOLDER_SYMBOL}{placeholders.Count - 1}";
 				});
 
@@ -216,6 +213,14 @@ public abstract class Expression
 			throw new ArgumentException($"'{expression}' is invalid expression");
 		} while (previousResult != expression);
 
-		return getExpression(expression);
+		return GetExpression(expression, placeholders);
+	}
+
+	public static Expression GetExpression(string value, List<Expression> placeholders)
+	{
+		return placeholderRegex.IsMatch(value)
+			? placeholders.ElementAtOrDefault(int.Parse(value[PLACEHOLDER_SYMBOL.ToString().Length..]))
+				?? throw new ArgumentException($"Invalid expression")
+			: Parse(value);
 	}
 }
