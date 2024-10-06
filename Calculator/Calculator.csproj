@@ -89,13 +89,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+	  <AndroidResource Remove="Operators\**" />
+	  <Compile Remove="Operators\**" />
+	  <EmbeddedResource Remove="Operators\**" />
+	  <MauiCss Remove="Operators\**" />
+	  <MauiXaml Remove="Operators\**" />
+	  <None Remove="Operators\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Operators\" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>

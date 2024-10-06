@@ -16,14 +16,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install .NET MAUI
-      run: dotnet workload install maui-android
+      run: dotnet workload install maui
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore -c Release -f net8.0-android
     - name: Copy build files
       run: |
-        copy "./*/bin/Release/net8.0-android" -r "./release" -Force
+        md ./release
+        copy "./*/bin/Release/net8.0-android" -r "./release" -Force -Container:$false
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
