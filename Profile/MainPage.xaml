@@ -1,53 +1,111 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:local="clr-namespace:Profile"
 			 x:Class="Profile.MainPage"
+			 x:Name="page"
 			 Loaded="OnPageLoaded">
-	<Grid Padding="10">
-		<TableView>
-			<TableRoot>
-				<TableSection Title="Персональные данные">
-					<EntryCell Label="Фамилия" Placeholder="Введите фамилию"/>
-					<EntryCell Label="Имя" Placeholder="Введите имя"/>
-					<EntryCell Label="Отчество" Placeholder="Введите отчество"/>
-					<ViewCell>
-						<StackLayout Orientation="Horizontal">
-							<Label Text="Пол" VerticalOptions="CenterAndExpand"/>
-							<Picker Title="Выберите пол">
-								<Picker.Items>
-									<x:String>Мужской</x:String>
-									<x:String>Женский</x:String>
-								</Picker.Items>
-							</Picker>
-						</StackLayout>
-					</ViewCell>
-					<ViewCell>
-						<StackLayout Orientation="Horizontal" Spacing="20">
-							<Label Text="Возраст" VerticalOptions="CenterAndExpand"/>
-							<Grid>
-								<Label x:Name="ageLabel" Text="Выберите дату рождения" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill"/>
-								<DatePicker x:Name="dateOfBirthPicker" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill" Opacity="0" DateSelected="OnDateOfBirthSelected"/>
-							</Grid>
-						</StackLayout>
-					</ViewCell>
-					<ImageCell ImageSource="{Binding Source={x:Reference imagePathPicker}, Path=SelectedItem}" Text="Фото"/>
-					<ViewCell>
-						<Picker x:Name="imagePathPicker" Title="Выберите фотографию" VerticalOptions="FillAndExpand"/>
-					</ViewCell>
-				</TableSection>
-				<TableSection Title="Другое">
-					<SwitchCell Text="Нужно общежитие"/>
-					<SwitchCell Text="Староста"/>
-				</TableSection>
-				<TableSection x:Name="marksSection" Title="Оценки">
-				</TableSection>
-				<TableSection>
-					<ViewCell>
-						<Button Text="Добавить оценку" Clicked="OnAddMarkButtonClick"/>
-					</ViewCell>
-				</TableSection>
-			</TableRoot>
-		</TableView>
-	</Grid>
+	<StackLayout Padding="10">
+		<Button Text="Перевернуть" Clicked="OnCompressButtonClicked"/>
+		<Grid>
+			<TableView x:Name="table">
+				<TableRoot>
+					<TableSection Title="Персональные данные">
+						<ViewCell>
+							<StackLayout Orientation="Horizontal">
+								<Label VerticalOptions="CenterAndExpand" Text="Фамилия"/>
+								<Entry x:Name="lastname" Placeholder="Введите фамилию" HorizontalOptions="FillAndExpand"/>
+							</StackLayout>
+						</ViewCell>
+						<ViewCell>
+							<StackLayout Orientation="Horizontal">
+								<Label VerticalOptions="CenterAndExpand" Text="Имя"/>
+								<Entry x:Name="firstname" Placeholder="Введите имя" HorizontalOptions="FillAndExpand"/>
+							</StackLayout>
+						</ViewCell>
+						<ViewCell>
+							<StackLayout Orientation="Horizontal">
+								<Label VerticalOptions="CenterAndExpand" Text="Отчество"/>
+								<Entry x:Name="patronymic" Placeholder="Введите отчество" HorizontalOptions="FillAndExpand"/>
+							</StackLayout>
+						</ViewCell>
+						<ViewCell>
+							<StackLayout Orientation="Horizontal">
+								<Label Text="Пол" VerticalOptions="CenterAndExpand"/>
+								<Picker x:Name="gender" Title="Выберите пол">
+									<Picker.Items>
+										<x:String>Мужской</x:String>
+										<x:String>Женский</x:String>
+									</Picker.Items>
+								</Picker>
+							</StackLayout>
+						</ViewCell>
+						<ViewCell>
+							<StackLayout Orientation="Horizontal" Spacing="20">
+								<Label Text="Возраст" VerticalOptions="CenterAndExpand"/>
+								<Grid>
+									<Label x:Name="ageLabel" Text="Выберите дату рождения" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill"/>
+									<DatePicker x:Name="dateOfBirthPicker" VerticalOptions="CenterAndExpand" HorizontalOptions="Fill" Opacity="0" DateSelected="OnDateOfBirthSelected"/>
+								</Grid>
+							</StackLayout>
+						</ViewCell>
+						<ImageCell x:Name="imageCell" ImageSource="{Binding Source={x:Reference imagePathPicker}, Path=SelectedItem}" Text="Фото"/>
+						<ViewCell>
+							<Picker x:Name="imagePathPicker" Title="Выберите фотографию" VerticalOptions="FillAndExpand"/>
+						</ViewCell>
+					</TableSection>
+					<TableSection Title="Другое">
+						<SwitchCell x:Name="hostelSwitch" Text="Нужно общежитие"/>
+						<SwitchCell x:Name="headmanSwitch" Text="Староста"/>
+					</TableSection>
+					<TableSection x:Name="marksSection" Title="Оценки"/>
+					<TableSection>
+						<ViewCell>
+							<Button Text="Добавить оценку" Clicked="OnAddMarkButtonClick"/>
+						</ViewCell>
+					</TableSection>
+				</TableRoot>
+			</TableView>
 
+			<StackLayout x:Name="card" ScaleY="0" VerticalOptions="CenterAndExpand">
+				<Image Source="{Binding Source={x:Reference imagePathPicker}, Path=SelectedItem}" HorizontalOptions="CenterAndExpand"/>
+				<Label HorizontalOptions="CenterAndExpand">
+					<Label.FormattedText>
+						<FormattedString>
+							<FormattedString.Spans>
+								<Span BindingContext="{x:Reference lastname}" Text="{Binding Text}"/>
+								<Span Text=" "/>
+								<Span BindingContext="{x:Reference firstname}" Text="{Binding Text}"/>
+								<Span Text=" "/>
+								<Span BindingContext="{x:Reference patronymic}" Text="{Binding Text}"/>
+							</FormattedString.Spans>
+						</FormattedString>
+					</Label.FormattedText>
+				</Label>
+				<Label HorizontalOptions="CenterAndExpand" BindingContext="{x:Reference ageLabel}" Text="{Binding Text}"/>
+				<Label HorizontalOptions="CenterAndExpand" BindingContext="{x:Reference gender}" Text="{Binding SelectedItem}"/>
+				<Label HorizontalOptions="CenterAndExpand">
+					<Label.Triggers>
+						<DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference headmanSwitch}, Path=On}" Value="True">
+							<Setter Property="Text" Value="Староста"/>
+						</DataTrigger>
+						<DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference headmanSwitch}, Path=On}" Value="False">
+							<Setter Property="Text" Value="Никто"/>
+						</DataTrigger>
+					</Label.Triggers>
+				</Label>
+				<Label HorizontalOptions="CenterAndExpand">
+					<Label.Triggers>
+						<DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference hostelSwitch}, Path=On}" Value="True">
+							<Setter Property="Text" Value="Хочет общежитие"/>
+						</DataTrigger>
+						<DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference hostelSwitch}, Path=On}" Value="False">
+							<Setter Property="Text" Value="Не хочет общежитие"/>
+						</DataTrigger>
+					</Label.Triggers>
+				</Label>
+				<Label HorizontalOptions="CenterAndExpand" BindingContext="{x:Reference page}" Text="{Binding Path=Marks, StringFormat='Оценки: {0}'}"/>
+			</StackLayout>
+		</Grid>
+	</StackLayout>
 </ContentPage>

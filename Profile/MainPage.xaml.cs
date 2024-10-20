@@ -2,6 +2,23 @@
 
 public partial class MainPage : ContentPage
 {
+	public string Marks
+	{
+		get => (string)(GetValue(MarksProperty) ?? "ещё не получены");
+		set
+		{
+			SetValue(MarksProperty, string.Join(", ", marksSection.Where(c => c is ViewCell cell && cell.View is StackLayout).Select(c =>
+			{
+				ViewCell cell = (ViewCell)c;
+				var layout = (StackLayout)cell.View;
+
+				return ((Stepper)layout.Children.Last()).Value.ToString();
+			})));
+		}
+	}
+
+	public static BindableProperty MarksProperty = BindableProperty.Create(nameof(Marks), typeof(string), typeof(MainPage));
+
 	public MainPage()
 	{
 		InitializeComponent();
@@ -38,6 +55,7 @@ public partial class MainPage : ContentPage
 	{
 		var label = new Label { VerticalOptions = LayoutOptions.CenterAndExpand };
 		var stepper = new Stepper { Minimum = 2, Maximum = 5, Increment = 1 };
+		stepper.ValueChanged += (s, e) => Marks = string.Empty;
 
 		label.SetBinding(Label.TextProperty, new Binding { Source = stepper, Path = "Value", StringFormat = "Оценка: {0}" });
 
@@ -48,5 +66,21 @@ public partial class MainPage : ContentPage
 		var cell = new ViewCell { View = layout };
 
 		marksSection.Add(cell);
+		Marks = string.Empty;
+	}
+
+	private async void OnCompressButtonClicked(object sender, EventArgs e)
+	{
+		if (sender is not Button button)
+			return;
+
+		button.IsEnabled = false;
+
+		var elements = new List<VisualElement> { table, card }.OrderByDescending(e => e.ScaleY);
+
+		foreach (VisualElement element in elements)
+			await element.ScaleYTo(Math.Round(1 - element.ScaleY), 500);
+
+		button.IsEnabled = true;
 	}
 }
