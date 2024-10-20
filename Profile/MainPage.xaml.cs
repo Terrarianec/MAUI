@@ -2,6 +2,23 @@
 
 public partial class MainPage : ContentPage
 {
+	public string Marks
+	{
+		get => (string)(GetValue(MarksProperty) ?? "ещё не получены");
+		set
+		{
+			SetValue(MarksProperty, string.Join(", ", marksSection.Where(c => c is ViewCell cell && cell.View is StackLayout).Select(c =>
+			{
+				ViewCell cell = (ViewCell)c;
+				var layout = (StackLayout)cell.View;
+
+				return ((Stepper)layout.Children.Last()).Value.ToString();
+			})));
+		}
+	}
+
+	public static BindableProperty MarksProperty = BindableProperty.Create(nameof(Marks), typeof(string), typeof(MainPage));
+
 	public MainPage()
 	{
 		InitializeComponent();
@@ -19,9 +36,10 @@ public partial class MainPage : ContentPage
 	{
 		var preferences = Preferences.Default;
 
-		foreach (var cell in new List<EntryCell> { surnameCell, firstnameCell, patronymicCell })
+		foreach (var entry in new List<Entry> { lastname, firstname, patronymic })
 		{
-			cell.Text = preferences.Get(cell.Label, string.Empty);
+			var label = (Label)((StackLayout)entry.Parent).Children.First();
+			entry.Text = preferences.Get(label.Text, string.Empty);
 		}
 
 		genderPicker.SelectedIndex = preferences.Get(genderPicker.Title, -1);
@@ -30,9 +48,12 @@ public partial class MainPage : ContentPage
 
 		if (preferences.ContainsKey("photo"))
 		{
-			var path = preferences.Get<string>("photo", null);
-			image.ImageSource = ImageSource.FromFile(path);
-			image.BindingContext = path;
+			var path = preferences.Get<string>("photo", null!);
+			if (path != null)
+			{
+				image.ImageSource = ImageSource.FromFile(path);
+				image.BindingContext = path;
+			}
 		}
 
 		foreach (var cell in new List<SwitchCell> { hostelRequiredSwitch, isHeadmanSwitch })
@@ -48,6 +69,7 @@ public partial class MainPage : ContentPage
 			{
 				var label = new Label { VerticalOptions = LayoutOptions.CenterAndExpand };
 				var stepper = new Stepper { Minimum = 2, Maximum = 5, Increment = 1, Value = mark };
+				stepper.ValueChanged += (s, e) => Marks = string.Empty;
 
 				label.SetBinding(Label.TextProperty, new Binding { Source = stepper, Path = "Value", StringFormat = "Оценка: {0}" });
 
@@ -59,6 +81,8 @@ public partial class MainPage : ContentPage
 
 				marksSection.Add(cell);
 			}
+
+			Marks = string.Empty;
 		}
 	}
 
@@ -66,16 +90,17 @@ public partial class MainPage : ContentPage
 	{
 		var preferences = Preferences.Default;
 
-		foreach (var cell in new List<EntryCell> { surnameCell, firstnameCell, patronymicCell })
+		foreach (var entry in new List<Entry> { lastname, firstname, patronymic })
 		{
-			preferences.Set(cell.Label, cell.Text);
+			var label = (Label)((StackLayout)entry.Parent).Children.First();
+			preferences.Set(label.Text, entry.Text);
 		}
 
 		preferences.Set(genderPicker.Title, genderPicker.SelectedIndex);
 
 		preferences.Set("birth", dateOfBirthPicker.Date);
 
-		if (image.ImageSource is ImageSource)
+		if (image.ImageSource is not null)
 			preferences.Set("photo", (string)image.BindingContext);
 
 		foreach (var cell in new List<SwitchCell> { hostelRequiredSwitch, isHeadmanSwitch })
@@ -102,6 +127,7 @@ public partial class MainPage : ContentPage
 	{
 		var label = new Label { VerticalOptions = LayoutOptions.CenterAndExpand };
 		var stepper = new Stepper { Minimum = 2, Maximum = 5, Increment = 1 };
+		stepper.ValueChanged += (s, e) => Marks = string.Empty;
 
 		label.SetBinding(Label.TextProperty, new Binding { Source = stepper, Path = "Value", StringFormat = "Оценка: {0}" });
 
@@ -112,6 +138,7 @@ public partial class MainPage : ContentPage
 		var cell = new ViewCell { View = layout };
 
 		marksSection.Add(cell);
+		Marks = string.Empty;
 	}
 
 	private async void OnImagePickerClicked(object sender, EventArgs e)
@@ -125,5 +152,22 @@ public partial class MainPage : ContentPage
 
 		image.ImageSource = ImageSource.FromFile(result.FullPath);
 		image.BindingContext = result.FullPath;
+	}
+
+	private async void OnCompressButtonClicked(object sender, EventArgs e)
+	{
+		if (sender is not Button button)
+			return;
+
+		button.IsEnabled = false;
+
+		var elements = new List<VisualElement> { table, card }.OrderByDescending(e => e.ScaleY);
+
+		foreach (VisualElement element in elements)
+			await element.ScaleYTo(Math.Round(1 - element.ScaleY), 250);
+
+		button.IsEnabled = true;
+
+		SaveData();
 	}
 }
