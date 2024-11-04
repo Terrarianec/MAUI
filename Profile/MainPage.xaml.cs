@@ -1,7 +1,11 @@
-﻿namespace Profile;
+﻿using Profile.Storage;
+
+namespace Profile;
 
 public partial class MainPage : ContentPage
 {
+	private IStorage? _previousStorage = null;
+
 	public string Marks
 	{
 		get => (string)(GetValue(MarksProperty) ?? "ещё не получены");
@@ -16,6 +20,8 @@ public partial class MainPage : ContentPage
 			})));
 		}
 	}
+	public IStorage Storage => _storages.TryGetValue(storagePicker.SelectedItem?.ToString() ?? string.Empty, out IStorage storage) ? storage : null;
+	private readonly Dictionary<string, IStorage> _storages = [];
 
 	public static BindableProperty MarksProperty = BindableProperty.Create(nameof(Marks), typeof(string), typeof(MainPage));
 
@@ -29,41 +35,58 @@ public partial class MainPage : ContentPage
 		dateOfBirthPicker.MaximumDate = DateTime.Today - TimeSpan.FromDays(365 * 16);
 		dateOfBirthPicker.MinimumDate = DateTime.MinValue;
 
-		LoadData();
+		var storages = new IStorage[] { new PreferenceStorage(Preferences.Default), new AppDataStorage(FileSystem.Current.AppDataDirectory) };
+
+		foreach (var storage in storages)
+		{
+			var name = storage.GetType().Name;
+
+			_storages.Add(name, storage);
+			storagePicker.Items.Add(name);
+		}
+
+		storagePicker.SelectedIndex = 0;
+
+		LoadData(Storage);
 	}
 
-	private void LoadData()
+	private void LoadData(IStorage storage)
 	{
-		var preferences = Preferences.Default;
+		if (storage == null)
+			return;
 
 		foreach (var entry in new List<Entry> { lastname, firstname, patronymic })
 		{
 			var label = (Label)((StackLayout)entry.Parent).Children.First();
-			entry.Text = preferences.Get(label.Text, string.Empty);
+			entry.Text = storage.Get(label.Text, string.Empty);
 		}
 
-		genderPicker.SelectedIndex = preferences.Get(genderPicker.Title, -1);
+		genderPicker.SelectedIndex = storage.Get(genderPicker.Title, -1);
 
-		dateOfBirthPicker.Date = preferences.Get("birth", DateTime.Today);
+		dateOfBirthPicker.Date = storage.Get("birth", DateTime.Today);
 
-		if (preferences.ContainsKey("photo"))
+		if (storage.ContainsKey("photo"))
 		{
-			var path = preferences.Get<string>("photo", null!);
+			var path = storage.Get<string>("photo", null!);
 			if (path != null)
 			{
 				image.ImageSource = ImageSource.FromFile(path);
 				image.BindingContext = path;
 			}
 		}
+		else
+		{
+			image.ImageSource = null;
+		}
 
 		foreach (var cell in new List<SwitchCell> { hostelRequiredSwitch, isHeadmanSwitch })
 		{
-			cell.On = preferences.Get(cell.Text, false);
+			cell.On = storage.Get(cell.Text, false);
 		}
 
-		if (preferences.ContainsKey(marksSection.Title))
+		if (storage.ContainsKey(marksSection.Title))
 		{
-			var marks = preferences.Get(marksSection.Title, string.Empty).Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(int.Parse);
+			var marks = storage.Get(marksSection.Title, string.Empty).Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(int.Parse);
 
 			foreach (var mark in marks)
 			{
@@ -86,31 +109,32 @@ public partial class MainPage : ContentPage
 		}
 	}
 
-	public void SaveData()
+	public void SaveData(IStorage storage)
 	{
-		var preferences = Preferences.Default;
+		if (storage == null)
+			return;
 
 		foreach (var entry in new List<Entry> { lastname, firstname, patronymic })
 		{
 			var label = (Label)((StackLayout)entry.Parent).Children.First();
-			preferences.Set(label.Text, entry.Text);
+			storage.Set(label.Text, entry.Text);
 		}
 
-		preferences.Set(genderPicker.Title, genderPicker.SelectedIndex);
+		storage.Set(genderPicker.Title, genderPicker.SelectedIndex);
 
-		preferences.Set("birth", dateOfBirthPicker.Date);
+		storage.Set("birth", dateOfBirthPicker.Date);
 
 		if (image.ImageSource is not null)
-			preferences.Set("photo", (string)image.BindingContext);
+			storage.Set("photo", (string)image.BindingContext);
 
 		foreach (var cell in new List<SwitchCell> { hostelRequiredSwitch, isHeadmanSwitch })
 		{
-			preferences.Set(cell.Text, cell.On);
+			storage.Set(cell.Text, cell.On);
 		}
 
 		var marks = marksSection.Select(cell => (((cell as ViewCell).View as StackLayout).Children[0] as Label).Text.Last().ToString());
 
-		preferences.Set(marksSection.Title, string.Join(',', marks));
+		storage.Set(marksSection.Title, string.Join(',', marks));
 	}
 
 	private void OnDateOfBirthSelected(object sender, DateChangedEventArgs e)
@@ -168,6 +192,17 @@ public partial class MainPage : ContentPage
 
 		button.IsEnabled = true;
 
-		SaveData();
+		SaveData(Storage);
+	}
+
+	private void OnSelectedStorageChanged(object sender, EventArgs e)
+	{
+		if (_previousStorage != null)
+			SaveData(_previousStorage);
+
+		_previousStorage = Storage;
+
+		if (Storage != null)
+			LoadData(Storage);
 	}
 }
