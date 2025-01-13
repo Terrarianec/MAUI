@@ -1,0 +1,44 @@
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
+
+namespace Navigation;
+
+public static class MauiProgram
+{
+	public static MauiApp CreateMauiApp()
+	{
+		var builder = MauiApp.CreateBuilder();
+		builder
+			.UseMauiApp<App>()
+			.ConfigureLifecycleEvents(events =>
+			{
+#if ANDROID
+				events.AddAndroid(android =>
+					{
+						android.OnStop(activity =>
+						{
+							if (Shell.Current!.CurrentPage is MainPage page)
+							{
+								page.SaveData(page.Storage);
+							}
+						});
+					});
+#endif
+			})
+			.ConfigureFonts(fonts =>
+			{
+				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+			});
+
+		builder.Services.AddSingleton<AccessManager>();
+		builder.Services.AddSingleton<MainPage>();
+		builder.Services.AddTransient<GuardModalPage>();
+
+#if DEBUG
+		builder.Logging.AddDebug();
+#endif
+
+		return builder.Build();
+	}
+}

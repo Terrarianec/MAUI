@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Navigation.GuardModalPage"
+             Title="GuardModalPage">
+	<VerticalStackLayout>
+		<Label 
+            Text="Этот чувак охраняет настройки 123 дня и 123 ночи"
+            HorizontalOptions="Center" 
+            Padding="20"/>
+		<Image Source="Resources/Images/cool_dude.jpg"/>
+        <Label 
+            Text="Оцените его работу"
+            HorizontalOptions="Center" 
+            Padding="20"/>
+		<HorizontalStackLayout Padding="20" HorizontalOptions="Center">
+			<Entry x:Name="passwordEntry" Keyboard="Numeric" MaxLength="3" IsPassword="True" FontSize="18" Completed="OnPasswordEntered"/>
+			<Label Text="/123" VerticalOptions="CenterAndExpand" FontSize="18"/>
+		</HorizontalStackLayout>
+	</VerticalStackLayout>
+</ContentPage>
