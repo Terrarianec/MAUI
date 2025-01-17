@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WebApi.MobileApp.Pages.AddPage"
+             Title="Добавить растение"
+			 Unloaded="OnUnloaded">
+    <VerticalStackLayout
+        Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Text="Название:"/>
+            <Entry Grid.Row="0" Grid.Column="1" Text="{Binding Name}" HorizontalOptions="CenterAndExpand"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Text="Семейство:"/>
+            <Entry Grid.Row="1" Grid.Column="1" Text="{Binding Family}" HorizontalOptions="CenterAndExpand"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Text="Раздел:"/>
+            <Entry Grid.Row="2" Grid.Column="1" Text="{Binding Section}" HorizontalOptions="CenterAndExpand"/>
+        </Grid>
+        <Button Text="Сохранить" Clicked="OnSaveButtonClicked"/>
+    </VerticalStackLayout>
+</ContentPage>
